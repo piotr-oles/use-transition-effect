@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   unstable_cancelCallback as cancelCallback,
   unstable_scheduleCallback as scheduleCallback,
@@ -6,8 +6,8 @@ import {
   unstable_runWithPriority as runWithPriority,
   unstable_ImmediatePriority as ImmediatePriority,
   unstable_IdlePriority as IdlePriority,
-  CallbackNode
-} from 'scheduler';
+  CallbackNode,
+} from "scheduler";
 
 /**
  * Cleanup function (like in the useEffect hook)
@@ -116,7 +116,7 @@ export function useTransitionEffect(): [
         }
       };
       // start synchronously
-      const nextCallback = iterate();
+      const nextCallback = runWithPriority(priorityLevel, () => iterate());
 
       // we have next callback - schedule it
       if (nextCallback) {
