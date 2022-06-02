@@ -1,5 +1,6 @@
 {
   "name": "use-transition-effect",
+  "description": "Run long effects without blocking the main thread",
   "version": "0.1.1",
   "license": "MIT",
   "author": "Piotr Oleś",
@@ -7,6 +8,18 @@
   "module": "dist/use-transition-effect.mjs",
   "typings": "dist/use-transition-effect.d.ts",
   "repository": "https://github.com/piotr-oles/use-transition-effect.git",
+  "keywords": [
+    "react",
+    "useTransition",
+    "hook",
+    "long",
+    "task",
+    "generator",
+    "yield",
+    "concurrent",
+    "effect",
+    "main thread"
+  ],
   "files": [
     "dist",
     "src"
