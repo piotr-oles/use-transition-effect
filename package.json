@@ -27,11 +27,11 @@
   },
   "size-limit": [
     {
-      "path": "dist/use-transition-effect.cjs.production.min.js",
+      "path": "dist/use-transition-effect.js",
       "limit": "1 KB"
     },
     {
-      "path": "dist/use-transition-effect.esm.js",
+      "path": "dist/use-transition-effect.mjs",
       "limit": "1 KB"
     }
   ],
