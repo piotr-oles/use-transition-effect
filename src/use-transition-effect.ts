@@ -2,10 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   unstable_cancelCallback as cancelCallback,
   unstable_scheduleCallback as scheduleCallback,
-  unstable_shouldYield as shouldYield,
   unstable_runWithPriority as runWithPriority,
-  unstable_ImmediatePriority as ImmediatePriority,
   unstable_IdlePriority as IdlePriority,
+  unstable_ImmediatePriority as ImmediatePriority,
   CallbackNode,
 } from "scheduler";
 
@@ -26,12 +25,8 @@ export type TransitionEffectGenerator = Generator<
 
 /**
  * Function that returns effect generator (function*() {})
- *
- * @param shouldYield Function that returns true if the current task takes too long.
  */
-export type TransitionEffectCallback = (
-  shouldYield: () => boolean
-) => TransitionEffectGenerator;
+export type TransitionEffectCallback = () => TransitionEffectGenerator;
 
 // use interface for IDE to pick-up js docs
 export interface StartTransitionEffect {
@@ -99,7 +94,7 @@ export function useTransitionEffect(): [
       stopTransitionEffect();
 
       // call generator function to get generator
-      const generator = callback(shouldYield);
+      const generator = callback();
 
       // define callback to schedule
       const iterate = () => {
