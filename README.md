@@ -36,41 +36,34 @@ yarn add use-transition-effect
 ## Usage
 
 ```typescript
-const [
-  isPending,
-  startTransitionEffect,
-  stopTransitionEffect,
-] = useTransitionEffect();
+const [isPending, startTransitionEffect, stopTransitionEffect] =
+  useTransitionEffect();
 ```
 
 The API is very similar to the `useTransition` hook from React.
 It returns a stateful value for the pending state of the transition effect, a function to start it, and a function to stop it.
 
 `startTransitionEffect` lets you schedule a long-running effect without blocking the main thread. It expects a generator
-function as an argument, so you can yield to unblock the main thread. The generator function receives the `shouldYield` function,
-which returns true if the current task takes too long:
+function as an argument, so you can yield to unblock the main thread:
 
 ```typescript
-startTransitionEffect(function*(shouldYield) {
+startTransitionEffect(function* () {
   for (let item of items) {
     doSomeComplexSideEffects(item);
-    if (shouldYield()) {
-      yield;
-    }
+    yield;
   }
 });
 ```
 
 Additionally, you can yield and return a cleanup function that will run on transition stop (including unmount):
+
 ```typescript
-startTransitionEffect(function*(shouldYield) {
+startTransitionEffect(function* () {
   const cleanup = () => cleanupSideEffects();
 
   for (let item of items) {
     doSomeComplexSideEffects(item);
-    if (shouldYield()) {
-      yield cleanup;
-    }
+    yield cleanup;
   }
   return cleanup;
 });
@@ -80,7 +73,7 @@ startTransitionEffect(function*(shouldYield) {
 
 ```typescript
 useEffect(() => {
-  startTransitionEffect(function*() {
+  startTransitionEffect(function* () {
     // effect
   });
 
@@ -92,14 +85,11 @@ useEffect(() => {
 
 ```tsx
 function App() {
-  const [
-    isPending,
-    startTransitionEffect,
-    stopTransitionEffect,
-  ] = useTransitionEffect();
+  const [isPending, startTransitionEffect, stopTransitionEffect] =
+    useTransitionEffect();
 
   function handleStartClick() {
-    startTransitionEffect(function*() {
+    startTransitionEffect(function* () {
       // do stuff, for example render something on a canvas
     });
   }
@@ -119,6 +109,41 @@ function App() {
     </div>
   );
 }
+```
+
+The `scheduler` package exports the `unstable_shouldYield()` function that returns true if the current task takes too long.
+You can use it to decide when to yield:
+
+```typescript
+import { unstable_shouldYield as shouldYield } from "scheduler";
+
+startTransitionEffect(function* () {
+  for (let item of items) {
+    doSomeComplexSideEffects(item);
+    if (shouldYield()) {
+      yield;
+    }
+  }
+});
+```
+
+If you want to update the state during a transition effect, you have to wrap this update with the `unstable_runWithPriority()` function
+from the `scheduler` package (with a priority higher than `IdlePriority`). Otherwise, the state update inside the transition effect will run when the effect ends:
+
+```typescript
+import {
+  unstable_runWithPriority as runWithPriority,
+  unstable_NormalPriority as NormalPriority,
+} from "scheduler";
+
+startTransitionEffect(function* () {
+  for (let item of items) {
+    runWithPriority(NormalPriority, () => {
+      setCount((prevCount) => prevCount + 1);
+    });
+    yield;
+  }
+});
 ```
 
 ## License

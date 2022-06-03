@@ -1,12 +1,13 @@
-import { renderHook, act } from '@testing-library/react';
-import { useTransitionEffect } from '../src/use-transition-effect';
+import { renderHook, act } from "@testing-library/react";
+import { unstable_shouldYield as shouldYield } from "scheduler";
+import { useTransitionEffect } from "../src/use-transition-effect";
 
-describe('useTransitionEffect', () => {
+describe("useTransitionEffect", () => {
   const IS_PENDING = 0;
   const START_TRANSITION_EFFECT = 1;
   const STOP_TRANSITION_EFFECT = 2;
 
-  it('returns [isPending, startTransitionEffect, stopTransitionEffect]', () => {
+  it("returns [isPending, startTransitionEffect, stopTransitionEffect]", () => {
     const { result } = renderHook(() => useTransitionEffect());
 
     expect(result.current[IS_PENDING]).toBe(false);
@@ -14,7 +15,7 @@ describe('useTransitionEffect', () => {
     expect(result.current[STOP_TRANSITION_EFFECT]).toBeInstanceOf(Function);
   });
 
-  it('keeps stable callbacks', () => {
+  it("keeps stable callbacks", () => {
     const { result, rerender } = renderHook(() => useTransitionEffect());
 
     // store initial callbacks
@@ -34,7 +35,7 @@ describe('useTransitionEffect', () => {
     );
   });
 
-  it('changes isPending on manual transition start and stop', async () => {
+  it("changes isPending on manual transition start and stop", async () => {
     const { result } = renderHook(() => useTransitionEffect());
 
     // initially isPending is false
@@ -42,7 +43,7 @@ describe('useTransitionEffect', () => {
 
     // start infinite transition
     await act(() => {
-      result.current[START_TRANSITION_EFFECT](function*(shouldYield) {
+      result.current[START_TRANSITION_EFFECT](function* () {
         while (true) {
           if (shouldYield()) {
             yield;
@@ -56,7 +57,7 @@ describe('useTransitionEffect', () => {
 
     // wait for some time
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     });
 
     // is pending still should be true
@@ -71,7 +72,7 @@ describe('useTransitionEffect', () => {
     expect(result.current[IS_PENDING]).toBe(false);
   });
 
-  it('changes isPending on transition end', async () => {
+  it("changes isPending on transition end", async () => {
     const { result } = renderHook(() => useTransitionEffect());
 
     // initially isPending is false
@@ -79,7 +80,7 @@ describe('useTransitionEffect', () => {
 
     // start finite transition
     await act(() => {
-      result.current[START_TRANSITION_EFFECT](function*() {
+      result.current[START_TRANSITION_EFFECT](function* () {
         const deadline = performance.now() + 100;
         while (performance.now() < deadline) {
           // do nothing
@@ -93,21 +94,21 @@ describe('useTransitionEffect', () => {
 
     // wait for some time
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     // is pending should be false
     expect(result.current[IS_PENDING]).toBe(false);
   });
 
-  it('runs cleanup from yield on stop', async () => {
+  it("runs cleanup from yield on stop", async () => {
     const { result } = renderHook(() => useTransitionEffect());
 
     const cleanup = jest.fn();
 
     // start infinite transition
     await act(() => {
-      result.current[START_TRANSITION_EFFECT](function*(shouldYield) {
+      result.current[START_TRANSITION_EFFECT](function* () {
         while (true) {
           if (shouldYield()) {
             yield cleanup;
@@ -125,14 +126,14 @@ describe('useTransitionEffect', () => {
     expect(cleanup).toHaveBeenCalledTimes(1);
   });
 
-  it('runs cleanup from yield on unmount', async () => {
+  it("runs cleanup from yield on unmount", async () => {
     const { result, unmount } = renderHook(() => useTransitionEffect());
 
     const cleanup = jest.fn();
 
     // start infinite transition
     await act(() => {
-      result.current[START_TRANSITION_EFFECT](function*(shouldYield) {
+      result.current[START_TRANSITION_EFFECT](function* () {
         while (true) {
           if (shouldYield()) {
             yield cleanup;
@@ -151,14 +152,14 @@ describe('useTransitionEffect', () => {
     expect(cleanup).toHaveBeenCalledTimes(1);
   });
 
-  it('runs cleanup from return on stop', async () => {
+  it("runs cleanup from return on stop", async () => {
     const { result } = renderHook(() => useTransitionEffect());
 
     const cleanup = jest.fn();
 
     // start finite transition
     await act(() => {
-      result.current[START_TRANSITION_EFFECT](function*() {
+      result.current[START_TRANSITION_EFFECT](function* () {
         yield;
         return cleanup;
       });
@@ -168,7 +169,7 @@ describe('useTransitionEffect', () => {
 
     // wait for some time
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     expect(cleanup).not.toHaveBeenCalled();
@@ -181,14 +182,14 @@ describe('useTransitionEffect', () => {
     expect(cleanup).toHaveBeenCalledTimes(1);
   });
 
-  it('runs cleanup from return on unmount', async () => {
+  it("runs cleanup from return on unmount", async () => {
     const { result, unmount } = renderHook(() => useTransitionEffect());
 
     const cleanup = jest.fn();
 
     // start finite transition
     await act(() => {
-      result.current[START_TRANSITION_EFFECT](function*() {
+      result.current[START_TRANSITION_EFFECT](function* () {
         for (let i = 0; i < 10; ++i) {
           yield;
         }
@@ -201,7 +202,7 @@ describe('useTransitionEffect', () => {
 
     // wait for some time
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     expect(cleanup).not.toHaveBeenCalled();
