@@ -32,7 +32,7 @@
     "test": "jest",
     "lint": "eslint src test",
     "prepare": "husky install",
-    "prepublish": "yarn test && yarn lint && yarn build",
+    "prepublishOnly": "yarn test && yarn lint && yarn build",
     "size": "size-limit"
   },
   "peerDependencies": {
