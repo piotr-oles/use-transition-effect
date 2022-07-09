@@ -21,6 +21,8 @@ The `useTransitionEffect()` hook provides a way to split long-running effects in
 to unblock the main thread. It uses [scheduler](https://www.npmjs.com/package/scheduler) package (from React)
 to schedule smaller units of work and coordinate it with React rendering.
 
+I wrote an article about this on Medium: **[Non-blocking `<canvas />` Rendering in Concurrent React](https://levelup.gitconnected.com/non-blocking-canvas-rendering-with-concurrent-react-f46032b03efa)**
+
 ## Installation
 
 This package requires [React 17+](https://www.npmjs.com/package/react) and [scheduler 0.20+](https://www.npmjs.com/package/scheduler)
